@@ -6,7 +6,7 @@ const userRoutes = express.Router();
 
 userRoutes.get("/", getAllUsers);
 userRoutes.post("/", createUser);
-userRoutes.put("/:id", updateUser);
+userRoutes.patch("/:id", updateUser);
 userRoutes.delete("/:id", deleteUser);
 
 

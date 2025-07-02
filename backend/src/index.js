@@ -2,6 +2,8 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import userRoutes from "./routes/user.routes.js";
+
 
 
 dotenv.config();
@@ -22,6 +24,11 @@ app.use(cookieParser());
 app.get("/", (req, res) => {
   res.send("Welcome to the User Management Web Application API");
 });
+
+
+// routes
+app.use("/api/users", userRoutes)
+
 
 
 

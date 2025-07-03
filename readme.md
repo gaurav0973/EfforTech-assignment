@@ -4,6 +4,14 @@
 
 This is a full-stack user management web application that allows for managing user data with features for creating, viewing, and bulk uploading users via Excel files.
 
+## Application Screenshots
+
+Below are some screenshots of the application:
+
+![Screenshot 1](./sampleImages/01.png)
+
+![Screenshot 2](./sampleImages/02.png)
+
 ## Technologies Used
 
 ### Backend
@@ -80,6 +88,7 @@ This is a full-stack user management web application that allows for managing us
    ```
    npm install
    ```
+
 ## How to Run Locally
 
 ### Start the Backend Server
@@ -139,6 +148,7 @@ For bulk uploading users, use an Excel file with the following columns:
 
 A sample Excel template is included in the repository.
 
+
 ## API Endpoints
 
 ### User Endpoints
@@ -160,6 +170,7 @@ A sample Excel template is included in the repository.
 - Implement user authentication and authorization
 - Add pagination for the user list
 - Include filtering and sorting options
+
 ---
 
 Developed as part of the EfforTech Full-Stack Developer Assignment

@@ -7,7 +7,7 @@ function BulkUpload({ onUploadSuccess }) {
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
 
-  // Handle file selection - simplified
+  // Handle file selection
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
@@ -15,7 +15,7 @@ function BulkUpload({ onUploadSuccess }) {
     }
   };
 
-  // Handle file upload - simplified
+  // Handle file upload
   const handleUpload = async () => {
     if (!file) {
       toast.error("Please select a file first");
@@ -41,9 +41,7 @@ function BulkUpload({ onUploadSuccess }) {
 
       toast.success("Users uploaded successfully");
       setFile(null);
-      if (onUploadSuccess) onUploadSuccess(); // Refresh user list
-
-      // Reset file input
+      if (onUploadSuccess) onUploadSuccess();
       const fileInput = document.getElementById("excelFile");
       if (fileInput) fileInput.value = "";
     } catch (error) {
@@ -54,18 +52,33 @@ function BulkUpload({ onUploadSuccess }) {
     }
   };
 
-  // Handle download of sample template
-  const handleDownloadTemplate = () => {
-    // Create a simple template with column headers
-    const template = [["firstName", "lastName", "email", "phone", "pan"]];
-    const csvContent = template.map((row) => row.join(",")).join("\n");
+  const handleDownloadTemplate = async () => {
+    try {
+      toast.loading("Downloading template...");
+      const response = await axios.get(
+        "http://localhost:5000/api/uploads/download-template",
+        {
+          responseType: "blob",
+          withCredentials: true,
+        }
+      );
 
-    // Create and download file
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "user_template.csv";
-    link.click();
+      // Create a download link and trigger it
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "user_template.xlsx");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast.dismiss();
+      toast.success("Template downloaded successfully");
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.dismiss();
+      toast.error("Failed to download template");
+    }
   };
 
   return (

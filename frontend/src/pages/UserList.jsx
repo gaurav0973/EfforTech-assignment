@@ -33,19 +33,18 @@ function UserList() {
     fetchUsers();
   }, []);
 
-  // Handle edit user
+  // Edit user
   const handleEditUser = (user) => {
-    // Navigate to form with user data
     navigate("/edit-user", { state: { user } });
   };
 
-  // Handle delete confirmation
+  // Delete confirmation
   const handleDeleteClick = (user) => {
     setUserToDelete(user);
     setShowDeleteModal(true);
   };
 
-  // Handle delete action
+  // Delete action
   const handleDeleteConfirm = async () => {
     if (!userToDelete) return;
 
@@ -53,7 +52,7 @@ function UserList() {
       await axios.delete(`http://localhost:5000/api/users/${userToDelete.id}`);
       toast.success("User deleted successfully");
       setShowDeleteModal(false);
-      fetchUsers(); // Refresh the list
+      fetchUsers();
     } catch (error) {
       console.error("Error deleting user:", error);
       toast.error("Failed to delete user");

@@ -99,14 +99,12 @@ function UserForm() {
       let res;
 
       if (editMode) {
-        // Update existing user
         res = await axios.patch(
           `http://localhost:5000/api/users/${userId}`,
           userData
         );
         toast.success("User updated successfully!");
       } else {
-        // Create new user
         res = await axios.post("http://localhost:5000/api/users", userData);
         toast.success("User created successfully!");
       }
@@ -114,10 +112,8 @@ function UserForm() {
       console.log("Form submitted successfully:", res.data.data);
 
       if (editMode) {
-        // Navigate back to user list
         navigate("/users");
       } else {
-        // Clear form for new entry
         setFirstName("");
         setLastName("");
         setEmail("");

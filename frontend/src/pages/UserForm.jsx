@@ -1,7 +1,8 @@
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import toast from "react-hot-toast";
+import { useNavigate, useLocation } from "react-router-dom";
 
 function UserForm() {
   const [firstName, setFirstName] = useState("");
@@ -12,6 +13,25 @@ function UserForm() {
   const [errors, setErrors] = useState({});
   const [showPAN, setShowPAN] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [userId, setUserId] = useState(null);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Check if we're in edit mode with user data
+  useEffect(() => {
+    const userToEdit = location.state?.user;
+    if (userToEdit) {
+      setFirstName(userToEdit.firstName);
+      setLastName(userToEdit.lastName);
+      setEmail(userToEdit.email);
+      setPhone(userToEdit.phone);
+      setPAN(userToEdit.pan);
+      setUserId(userToEdit.id);
+      setEditMode(true);
+    }
+  }, [location]);
 
   // Validation functions
   const validateEmail = (email) => {
@@ -68,27 +88,50 @@ function UserForm() {
     setIsSubmitting(true);
 
     try {
-      const res = await axios.post("http://localhost:5000/api/users", {
+      const userData = {
         firstName,
         lastName,
         email,
         phone,
         pan,
-      });
+      };
 
-      toast.success("User created successfully!");
+      let res;
+
+      if (editMode) {
+        // Update existing user
+        res = await axios.patch(
+          `http://localhost:5000/api/users/${userId}`,
+          userData
+        );
+        toast.success("User updated successfully!");
+      } else {
+        // Create new user
+        res = await axios.post("http://localhost:5000/api/users", userData);
+        toast.success("User created successfully!");
+      }
+
       console.log("Form submitted successfully:", res.data.data);
 
-      // Clear form
-      setFirstName("");
-      setLastName("");
-      setEmail("");
-      setPhone("");
-      setPAN("");
-      setErrors({});
+      if (editMode) {
+        // Navigate back to user list
+        navigate("/users");
+      } else {
+        // Clear form for new entry
+        setFirstName("");
+        setLastName("");
+        setEmail("");
+        setPhone("");
+        setPAN("");
+        setErrors({});
+      }
     } catch (error) {
       console.error("Form submission error:", error);
-      toast.error("An error occurred while submitting the form");
+      toast.error(
+        editMode
+          ? "An error occurred while updating the user"
+          : "An error occurred while creating the user"
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -96,7 +139,9 @@ function UserForm() {
 
   return (
     <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4">User Form</h2>
+      <h2 className="text-2xl font-bold mb-4">
+        {editMode ? "Edit User" : "Add New User"}
+      </h2>
       <form onSubmit={handleFormSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -211,13 +256,26 @@ function UserForm() {
           )}
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end space-x-3">
+          {editMode && (
+            <button
+              type="button"
+              onClick={() => navigate("/users")}
+              className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+            >
+              Cancel
+            </button>
+          )}
           <button
             type="submit"
             disabled={isSubmitting}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
           >
-            {isSubmitting ? "Submitting..." : "Submit"}
+            {isSubmitting
+              ? "Submitting..."
+              : editMode
+                ? "Update User"
+                : "Create User"}
           </button>
         </div>
       </form>

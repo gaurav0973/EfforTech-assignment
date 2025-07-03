@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 import toast from "react-hot-toast";
+import BulkUpload from "../components/BulkUpload";
 
 function UserList() {
   const [users, setUsers] = useState([]);
@@ -15,8 +16,10 @@ function UserList() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:5000/api/users", {withCredentials:true});
-      console.log("Users data : ", res)
+      const res = await axios.get("http://localhost:5000/api/users", {
+        withCredentials: true,
+      });
+      console.log("Users data : ", res);
       setUsers(res.data.data || []);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -63,11 +66,15 @@ function UserList() {
         <h2 className="text-2xl font-bold">User List</h2>
         <button
           onClick={() => navigate("/")}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center"
         >
+          <FaPlus className="mr-2" />
           Add New User
         </button>
       </div>
+
+      {/* Bulk Upload Component */}
+      <BulkUpload onUploadSuccess={fetchUsers} />
 
       {loading ? (
         <div className="flex justify-center">

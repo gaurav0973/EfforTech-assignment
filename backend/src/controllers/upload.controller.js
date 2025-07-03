@@ -5,14 +5,9 @@ import ApiError from "../helper/apiError.js";
 import ApiResponse from "../helper/apiResponse.js";
 import db from "../libs/db.js";
 
-/**
- * Process Excel file and bulk upload users
- * Simple implementation without complex validation
- * @param {Request} req - Express request object
- * @param {Response} res - Express response object
- */
 export const bulkUploadUsers = async (req, res) => {
   try {
+    
     // Check if file was uploaded
     if (!req.file) {
       return res.status(400).json(new ApiError("No file uploaded", 400));
@@ -38,19 +33,20 @@ export const bulkUploadUsers = async (req, res) => {
 
     // Basic check for empty file
     if (!rows || rows.length === 0) {
-      return res.status(400).json(new ApiError("File contains no data", 400));
+      return res
+        .status(400)
+        .json(new ApiError("File contains no data", 400));
     }
 
-    // Process and prepare user data
     const users = rows.map((row) => ({
       firstName: row.firstName || "",
       lastName: row.lastName || "",
       email: row.email || "",
-      phone: String(row.phone || "").replace(/\D/g, ""), // Remove non-numeric characters
-      pan: String(row.pan || "").toUpperCase(), // Convert to uppercase
+      phone: String(row.phone || ""),
+      pan: String(row.pan || "").toUpperCase(),
     }));
 
-    // Create users in database
+    // Create users
     const createdUsers = await db.$transaction(
       users.map((user) => db.user.create({ data: user }))
     );
@@ -58,14 +54,10 @@ export const bulkUploadUsers = async (req, res) => {
     return res
       .status(201)
       .json(
-        new ApiResponse(
-          201,
-          { count: createdUsers.length },
+        new ApiResponse(201, { count: createdUsers.length },
           `Successfully created ${createdUsers.length} users`
-        )
-      );
+        ));
   } catch (error) {
-    // Clean up file if it exists
     if (req.file && fs.existsSync(req.file.path)) {
       fs.unlinkSync(req.file.path);
     }
